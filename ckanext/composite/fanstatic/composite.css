@@ -1,3 +1,7 @@
+.composite-subfield{
+    padding-left: 20px;
+}
+
 p.composite-header {
     color: rgb(100,100,100);
     font-weight: bolder;
@@ -24,7 +28,7 @@ div.composite-subfield-info-first{
     display:block;
     margin-top:-15px;
     margin-bottom:10px;
-    
+
   position: relative;
   font-size: 11px;
   color: #aaaaaa;
@@ -33,7 +37,7 @@ div.composite-subfield-info-first{
 }
 
 div.composite-header-info{
-    
+
   font-size: 12px;
   color: #aaaaaa;
   line-height: 1.4;
@@ -60,7 +64,7 @@ input.composite-first-subfield {
   -webkit-transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
   -o-transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
   transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
-    
+
 }
 
 input.composite-subfield-with-help {
@@ -107,4 +111,3 @@ fieldset.composite-multiple-checkboxes label input {
     width: auto;
     top: 0;
 }
-

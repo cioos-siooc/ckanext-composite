@@ -10,9 +10,9 @@
 {%- endfor -%}
 
   {% if subfield.help_text and subfield_index>1 %}
-	{% set composite_classes = ["mediunput" , "composite-select-with-help"] %}
+	{% set composite_classes = ["mediunput" , "composite-select-with-help", "composite-subfield"] %}
   {% else %}
-	{% set composite_classes = ["mediunput",  "composite-select"] %}
+	{% set composite_classes = ["mediunput",  "composite-select" ,"composite-subfield"] %}
   {% endif %}
 
 {% call form.select(

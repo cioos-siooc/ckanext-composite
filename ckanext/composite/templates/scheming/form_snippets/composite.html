@@ -28,7 +28,7 @@
           {% endif %}
       {% else %}
        {% set type = "text" %}
-       {% set classes = ['control-full']%}
+       {% set classes = ['control-full composite-subfield']%}
        {% set extra_html="" %}
        {% set modal_text=subfield.modal_text if 'modal_text' in subfield else none %}
        {% set attrs=subfield.form_attrs if 'form_attrs' in subfield else {} %}
@@ -36,7 +36,7 @@
        {% if subfield.get("preset", "") == "date" %}
          {% set value= field_dict.get(subfield.field_name, '').split()[0] if field_dict is mapping else '' %}
          {% set type = "date" %}
-         {% set classes = []%}
+         {% set classes = ['composite-subfield']%}
        {% endif %}
 
         {% if subfield.help_text %}
@@ -52,7 +52,7 @@
            classes=classes,
            control_classes=[],
            extra_html="",
-           is_required=h.scheming_field_required(subfield) 
+           is_required=h.scheming_field_required(subfield)
            ) -%}
            <input id="{{ id or name }}" type="{{ type }}" name="{{ name }}"
             value="{{ value | empty_and_escape }}" placeholder="{{ placeholder }}"
@@ -70,5 +70,3 @@
 {% endfor %}
 </div>
 <hr>
-
-
