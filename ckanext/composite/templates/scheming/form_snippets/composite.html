@@ -38,6 +38,9 @@
          {% set type = "date" %}
          {% set classes = ['composite-subfield']%}
        {% endif %}
+       {% if subfield.get("preset", "") == "number" %}
+         {% set type = "number" %}
+       {% endif %}
 
         {% if subfield.help_text %}
            {% set composite_classes = "form-control composite-subfield-with-help" %}

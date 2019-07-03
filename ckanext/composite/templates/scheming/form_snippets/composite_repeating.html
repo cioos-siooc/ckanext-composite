@@ -45,6 +45,9 @@
             {% set type = "date" %}
             {% set classes = ['composite-subfield']%}
           {% endif %}
+          {% if subfield.get("preset", "") == "number" %}
+            {% set type = "number" %}
+          {% endif %}
 
           {%- call form.input_block(
             for='field-' + name,
