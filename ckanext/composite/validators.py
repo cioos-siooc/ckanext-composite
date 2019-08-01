@@ -6,7 +6,8 @@ import ckan.lib.navl.dictization_functions as df
 from ckanext.scheming.validation import scheming_validator
 from ckantoolkit import _, get_validator
 import logging
-
+import six
+from ckan.lib.base import config
 logger = logging.getLogger(__name__)
 
 StopOnError = df.StopOnError
@@ -36,16 +37,13 @@ def composite_group2json(field, schema):
         # Parse from extras into a dictionary and save it as a json dump
         if not value:
             found = {}
-            prefix = key[-1] + '-'
+            prefix = key[-1] + config.get('ckan.composite.separator','-')
             extras = data.get(key[:-1] + ('__extras',), {})
-
             extras_to_delete = []
             for name, text in extras.iteritems():
-                if not name.startswith(prefix):
+                if not six.text_type(name).startswith(six.text_type(prefix)):
                     continue
-                #if not text:
-                #    continue
-                subfield = name.split('-', 1)[1]
+                subfield = name.split(six.text_type(config.get('ckan.composite.separator','-')), 1)[1]
                 found[subfield] = text
                 extras_to_delete += [name]
             if not found:
@@ -58,14 +56,16 @@ def composite_group2json(field, schema):
                         subfield_value = found.get(schema_subfield.get('field_name', ''), "")
                         composite_not_empty_subfield(key, subfield_label, subfield_value, errors)
                 data[key] = json.dumps(found, ensure_ascii=False)
-
                 # delete the extras to avoid duplicate fields
                 for extra in extras_to_delete:
                     del extras[extra]
 
+
+
         # Check if the field is required
         if sh.scheming_field_required(field):
             not_empty(key, data, errors, context)
+
     return validator
 
 @scheming_validator
@@ -83,19 +83,14 @@ def composite_repeating_group2json(field, schema):
         # parse from extra into a list of dictionaries and save it as a json dump
         if not value:
             found = {}
-            prefix = key[-1] + '-'
+            prefix = key[-1] + config.get('ckan.composite.separator','-')
             extras = data.get(key[:-1] + ('__extras',), {})
-
             extras_to_delete = []
             for name, text in extras.iteritems():
-                if not name.startswith(prefix):
+                if not six.text_type(name).startswith(six.text_type(prefix)):
                     continue
-
-                #if not text:
-                #    continue
-
-                index = int(name.split('-', 2)[1])
-                subfield = name.split('-', 2)[2]
+                index = int(name.split(six.text_type(config.get('ckan.composite.separator','-')), 2)[1])
+                subfield = name.split(six.text_type(config.get('ckan.composite.separator','-')), 2)[2]
                 extras_to_delete += [name]
 
                 if not found.has_key(index):

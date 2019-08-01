@@ -16,7 +16,7 @@
       {% set subfield_form_snippet = subfield.get("form_snippet", "default") %}
       {% if subfield_form_snippet %}
         {% set subfield_index = loop.index %}
-        {% set name=field.field_name + '-' + index|string + '-' + subfield.field_name %}
+        {% set name=field.field_name + h.composite_separator() + index|string + h.composite_separator() + subfield.field_name %}
         {% set default_value = subfield.get("default_value", "") %}
         {% set value=field_dict.get(subfield.field_name, default_value) %}
 

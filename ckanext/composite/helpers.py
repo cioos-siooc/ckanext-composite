@@ -1,11 +1,13 @@
-import json
+import logging
 import re
 import datetime
-
-import logging
-
+from ckan.lib.helpers import json
+from ckan.plugins.toolkit import config
 
 logger = logging.getLogger(__name__)
+
+def composite_separator():
+    return config.get('ckan.composite.separator','-')
 
 def _json2dict_or_empty(value, field_name = ""):
     try:
@@ -59,7 +61,7 @@ def composite_get_label_dict(field_list):
     "field_name" and "label" into a single dictionary
     with "field_name" value as key and "label" as value.
     If label is not defined, the field name is used as
-    label. 
+    label.
     '''
 
     label_dict = {}
@@ -102,15 +104,15 @@ def composite_get_value_dict(field_name, data):
     field comes from the database) or construct from several subfields -
     entries in case data wasn't saved yet, i.e. a validation error occurred.
     '''
- 
+
     def build_value_dict():
-        fields = [re.match(field_name + "-.+", key) for key in data.keys()]
+        fields = [re.match(field_name + composite_separator() + ".+", key) for key in data.keys()]
         fields = sorted([r.string for r in fields if r])
         value_dict = {}
 
         for field in fields:
             if data[field] is not None:
-                subfield = field.split("-",1)[1]
+                subfield = field.split(composite_separator(), 1)[1]
                 value_dict[subfield] = data[field]
         return value_dict
 
@@ -150,19 +152,25 @@ def composite_repeating_get_value_dict_list(field_name, subfields, data, field_b
         return non_empty_list
 
     def build_value_dict_list():
-        fields = [re.match(field_name + "-.+", key) for key in data.keys()]
+        sep = composite_separator()
+        fields = [re.match(field_name + sep + ".+", key) for key in data.keys()]
         fields = sorted([r.string for r in fields if r])
 
         value_dict = {}
 
         for field in fields:
-            if data[field] is not None:
-                index = int(field.split('-', 2)[1])
-                subfield = field.split('-', 2)[2]
-
-                if not value_dict.has_key(index):
-                   value_dict[index] = {}
+            if data[field]:
+                split_list = field.split(sep, 2)
+                if len(split_list) < 2:
+                    continue
+                index = int(split_list[1])
+                subfield = split_list[2]
+                if value_dict not in index:
+                    value_dict[index] = {}
                 value_dict[index][subfield] = data[field]
+
+        if not value_dict:
+            return None
 
         value_dict_list = [element[1] for element in sorted(value_dict.items())]
 
@@ -173,28 +181,27 @@ def composite_repeating_get_value_dict_list(field_name, subfields, data, field_b
     form_value = build_value_dict_list()
 
     if form_value:
-       value_dict_list = form_value
+        value_dict_list = form_value
     else:
-       db_value = data.get(field_name)
-       if db_value:
-           if isinstance(db_value, list):
-               value_dict_list = db_value
-           else:
-               value_dict_list = _json2list_or_empty(db_value)
-           # Compatibility
-           if isinstance(value_dict_list, dict):
-               value_dict_list = [value_dict_list]
-
+        db_value = data.get(field_name)
+        if db_value:
+            if isinstance(db_value, list):
+                value_dict_list = db_value
+            else:
+                value_dict_list = _json2list_or_empty(db_value, field_name)
+            # Compatibility
+            if isinstance(value_dict_list, dict):
+                value_dict_list = [value_dict_list]
 
     # Build empty dictionary for initial form
     if not value_dict_list:
-       loop_lim = max (field_blanks+1, 2)
-       value_dict_list = [] 
-       for  x in range (1, loop_lim):
-           blank_dict = {}
-           for subfield in subfields:
-               blank_dict[subfield['field_name']] = ''
-           value_dict_list += [blank_dict]
+        loop_lim = max(field_blanks + 1, 2)
+        value_dict_list = []
+        for x in range(1, loop_lim):
+            blank_dict = {}
+            for subfield in subfields:
+                blank_dict[subfield['field_name']] = ''
+            value_dict_list += [blank_dict]
 
     if not include_empty:
         value_dict_list = remove_empty_dicts(value_dict_list)
@@ -208,7 +215,7 @@ def composite_is_mail(value):
     return False
 
 def composite_get_markup(text):
-    
+
     markup_text = []
 
     for token in text.split(' '):
@@ -238,4 +245,3 @@ def composite_get_default_value(text):
         now = datetime.datetime.now()
         return str(now.year)
     return text
-

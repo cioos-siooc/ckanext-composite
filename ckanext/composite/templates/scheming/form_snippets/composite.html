@@ -11,7 +11,7 @@
 {% for subfield in field.subfields %}
    {% set subfield_form_snippet = subfield.get("form_snippet", "default") %}
    {% if subfield_form_snippet == "default"  %}
-     {% set name=field.field_name + '-' + subfield.field_name %}
+     {% set name=field.field_name + h.composite_separator() + subfield.field_name %}
      {% set default_value = h.composite_get_default_value(subfield.get("default_value", "")) %}
      {% set value = default_value %}
      {% if field_dict is mapping %}
