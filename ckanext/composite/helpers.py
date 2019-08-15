@@ -106,13 +106,17 @@ def composite_get_value_dict(field_name, data):
     '''
 
     def build_value_dict():
-        fields = [re.match(field_name + composite_separator() + ".+", key) for key in data.keys()]
+        sep = composite_separator()
+        fields = [re.match(field_name + sep + ".+", key) for key in data.keys()]
         fields = sorted([r.string for r in fields if r])
         value_dict = {}
 
         for field in fields:
-            if data[field] is not None:
-                subfield = field.split(composite_separator(), 1)[1]
+            if data[field]:
+                split_list = field.split(sep, 1)
+                if len(split_list) < 2:
+                    continue
+                subfield = split_list[1]
                 value_dict[subfield] = data[field]
         return value_dict
 
@@ -161,11 +165,11 @@ def composite_repeating_get_value_dict_list(field_name, subfields, data, field_b
         for field in fields:
             if data[field]:
                 split_list = field.split(sep, 2)
-                if len(split_list) < 2:
+                if len(split_list) < 3:
                     continue
                 index = int(split_list[1])
                 subfield = split_list[2]
-                if value_dict not in index:
+                if not value_dict.get(index):
                     value_dict[index] = {}
                 value_dict[index][subfield] = data[field]
 
