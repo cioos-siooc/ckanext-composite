@@ -4,7 +4,7 @@
 
 .. image:: https://travis-ci.org/espona/ckanext-composite.svg?branch=master
     :target: https://travis-ci.org/espona/ckanext-composite
- 
+
 .. image:: https://coveralls.io/repos/espona/ckanext-composite/badge.svg
   :target: https://coveralls.io/r/espona/ckanext-composite
 
@@ -35,9 +35,26 @@ ckanext-composite
 .. Put a description of your extension here:
    What does it do? What features does it have?
    Consider including some screenshots or embedding a video!
-   
-Allows to store structured dataset metadata, single or multiple fields. Only one level of subfields is possible. The subfields can be basic text, date type o choice dropboxes. Do not use dashes or numbers in the labels or values of fields.
 
+Allows to store structured dataset metadata, single or multiple fields. Only one
+level of subfields is possible. The subfields can be basic text, date type of
+choice dropboxes. Do not use dashes or numbers in the labels or values of fields.
+
+
+CIOOS-SIOOC Changes
+===================
+
+Added the ckan.composite.separator config parameter to production.ini. This
+allows custom setting of the field separator used by the composite extension.
+This is important as the spatial extension uses dashes (-) in iso field names.
+This made composite and spatial extensions incompatible. It seamed easiest to
+allow for overriding the separator here rather then changing it in other
+packages. To support this fetch a helper function was added 'composite_separator()'
+which will get the separator from the config file. separator defaults to the pipe
+symbol '|' if not set.
+
+There were several css changes to display composite fields in a nicer way as well 
+as some changes to which css classes were assigned to which objects.
 
 ------------
 Requirements
@@ -153,7 +170,7 @@ Add this to your schema.json file::
           }
        ]
       }
-      
+
 ------------------------
 Development Installation
 ------------------------
