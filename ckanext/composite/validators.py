@@ -20,8 +20,31 @@ def composite_not_empty_subfield(key, subfield_label, value, errors):
     ''' Function equivalent to ckan.lib.navl.validators.not_empty
          but for subfields (custom message including subfield)
     '''
+    logger.debug('%r', subfield_label)
     if not value or value is missing:
         errors[key].append(_('Missing value at required subfield ' + subfield_label))
+        raise StopOnError
+
+
+def composite_one_not_empty_subfield(key, item, index, schema_subfields, errors):
+    logger.info('%r', item)
+    logger.info('%r', schema_subfields)
+    found = False
+    subfield_list = []
+    for schema_subfield in schema_subfields:
+        if schema_subfield.get('require_one', False):
+            if type(schema_subfield.get('label', '')) is dict:
+                subfield_label = schema_subfield.get('field_name', '') + " " + str(index)
+            else:
+                subfield_label = schema_subfield.get('label', schema_subfield.get('field_name', '')) + " " + str(index)
+            subfield_label = subfield_label.strip()
+            subfield_list.append(subfield_label)
+
+            value = item.get(schema_subfield.get('field_name', ''), "")
+            if value is not missing and value != '':
+                found = True
+    if not found:
+        errors[key].append(_('Missing value, one of the subfields is required: [' + ', '.join(subfield_list) + ']'))
         raise StopOnError
 
 @scheming_validator
@@ -50,6 +73,7 @@ def composite_group2json(field, schema):
                 data[key] = ""
             else:
                 # Check if there is any mandatory subfield required
+                composite_one_not_empty_subfield(key, found, '', field['subfields'], errors)
                 for schema_subfield in field['subfields']:
                     if schema_subfield.get('required', False):
                         subfield_label = schema_subfield.get('label', schema_subfield.get('field_name', ''))
@@ -104,6 +128,7 @@ def composite_repeating_group2json(field, schema):
                 # check if there are required subfields missing for every item
                 for index in found:
                     item = found[index]
+                    composite_one_not_empty_subfield(key, item, index, field['subfields'], errors)
                     for schema_subfield in field['subfields']:
                         if schema_subfield.get('required', False):
                             if type(schema_subfield.get('label', '')) is dict:
