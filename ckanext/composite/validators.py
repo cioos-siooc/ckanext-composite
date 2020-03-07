@@ -30,9 +30,11 @@ def composite_one_not_empty_subfield(key, item, index, schema_subfields, errors)
     logger.info('%r', item)
     logger.info('%r', schema_subfields)
     found = False
+    one_required = False
     subfield_list = []
     for schema_subfield in schema_subfields:
         if schema_subfield.get('require_one', False):
+            one_required = True
             if type(schema_subfield.get('label', '')) is dict:
                 subfield_label = schema_subfield.get('field_name', '') + " " + str(index)
             else:
@@ -43,7 +45,7 @@ def composite_one_not_empty_subfield(key, item, index, schema_subfields, errors)
             value = item.get(schema_subfield.get('field_name', ''), "")
             if value is not missing and value != '':
                 found = True
-    if not found:
+    if not found and one_required:
         errors[key].append(_('Missing value, one of the subfields is required: [' + ', '.join(subfield_list) + ']'))
         raise StopOnError
 
