@@ -20,15 +20,12 @@ def composite_not_empty_subfield(key, subfield_label, value, errors):
     ''' Function equivalent to ckan.lib.navl.validators.not_empty
          but for subfields (custom message including subfield)
     '''
-    logger.debug('%r', subfield_label)
     if not value or value is missing:
         errors[key].append(_('Missing value at required subfield ' + subfield_label))
         raise StopOnError
 
 
 def composite_one_not_empty_subfield(key, item, index, schema_subfields, errors):
-    logger.info('%r', item)
-    logger.info('%r', schema_subfields)
     found = False
     one_required = False
     subfield_list = []
